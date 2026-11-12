@@ -1,7 +1,7 @@
 // Record the Chainmind demo video with headless Chrome (no extra npm deps).
 //
 //   python3 -m http.server 8766 --directory .        (from the repo root)
-//   node demo/record.mjs [outDir]                    (writes frames + chainmind-demo.mp4)
+//   node demo/record.mjs [outDir]                    (writes chainmind-demo.mp4 and -music.mp4)
 //
 // Scenes: intro card, the real testnet transaction, a directed tour of the
 // live landing page, outro card. Needs Chrome and ffmpeg (libx264).
@@ -194,3 +194,15 @@ execFileSync("ffmpeg", [
   "-c:v", "libx264", "-preset", "slow", "-crf", "18", "-movflags", "+faststart", video,
 ], { stdio: "inherit" });
 console.log(`wrote ${video}`);
+
+// Score the soundtrack to this recording's scene timings and mix it in.
+const seconds = execFileSync("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", video]).toString().trim();
+const music = join(OUT, "music.wav");
+execFileSync("python3", [join(resolve("demo"), "music.py"), join(OUT, "frames.ffconcat"), seconds, music], { stdio: "inherit" });
+const withMusic = join(OUT, "chainmind-demo-music.mp4");
+execFileSync("ffmpeg", [
+  "-y", "-loglevel", "error", "-i", video, "-i", music, "-map", "0:v", "-map", "1:a", "-c:v", "copy",
+  "-af", `volume=-2.6dB,afade=t=out:st=${(Number(seconds) - 3.4).toFixed(2)}:d=3.4`,
+  "-ar", "48000", "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", withMusic,
+], { stdio: "inherit" });
+console.log(`wrote ${withMusic}`);
