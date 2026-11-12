@@ -1,0 +1,140 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1920, initial-scale=1">
+<title>Chainmind demo scenes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Title cards and the terminal scene for the demo video, in the site's style.
+   Open as scenes.html?scene=intro | terminal | outro. Each plays once. */
+:root {
+  --night: #05060A;
+  --night-2: #0D0F18;
+  --cobalt: #2440FF;
+  --cobalt-soft: #8EA2FF;
+  --on-night: #E9ECF5;
+  --on-night-2: #8A91A8;
+  --line-night: rgba(233, 236, 245, .1);
+  --ok: #3DFFB0;
+  --f-display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Geist", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "Geist Mono", ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: var(--night); color: var(--on-night); font-family: var(--f-body); -webkit-font-smoothing: antialiased; }
+.scene { position: absolute; inset: 0; display: none; }
+.scene.on { display: block; }
+.glow { position: absolute; width: 1400px; height: 1400px; left: 50%; top: 50%; transform: translate(-50%, -50%); background: radial-gradient(closest-side, rgba(36,64,255,.28), transparent); }
+.in { opacity: 0; transform: translateY(40px); transition: opacity 1s cubic-bezier(.2,.7,.1,1), transform 1.2s cubic-bezier(.2,.7,.1,1); }
+.in.go { opacity: 1; transform: none; }
+
+/* intro + outro */
+.card { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; gap: 36px; }
+.mark { display: inline-flex; align-items: center; gap: 18px; justify-self: center; font-family: var(--f-display); font-weight: 700; font-size: 44px; letter-spacing: -.02em; }
+.mark svg { width: 52px; height: 52px; }
+.big { font-family: var(--f-display); font-weight: 700; font-size: 150px; line-height: .9; letter-spacing: -.05em; }
+.big em { font-style: normal; color: var(--cobalt-soft); }
+.small { font-size: 34px; color: var(--on-night-2); max-width: 1200px; margin: 0 auto; line-height: 1.35; }
+.pill { justify-self: center; font-family: var(--f-mono); font-size: 24px; padding: 12px 24px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line-night); color: var(--on-night); }
+.pill b { color: var(--cobalt-soft); font-weight: 500; }
+
+/* terminal */
+.term-wrap { position: absolute; inset: 0; display: grid; place-items: center; }
+.label { position: absolute; left: 140px; top: 96px; font-family: var(--f-mono); font-size: 22px; letter-spacing: .06em; text-transform: uppercase; color: var(--on-night-2); display: flex; gap: 14px; align-items: center; }
+.label::before { content: ""; width: 28px; height: 1px; background: currentColor; }
+.label b { color: var(--ok); font-weight: 400; }
+.term { width: 1640px; border-radius: 28px; background: var(--night-2); box-shadow: inset 0 0 0 1px var(--line-night), 0 60px 120px -60px rgba(0,0,0,.9); overflow: hidden; margin-top: 60px; }
+.bar { display: flex; gap: 12px; align-items: center; padding: 20px 26px; border-bottom: 1px solid var(--line-night); }
+.bar i { width: 15px; height: 15px; border-radius: 50%; background: rgba(255,255,255,.14); }
+.bar span { margin-left: 16px; font-family: var(--f-mono); font-size: 20px; color: var(--on-night-2); }
+.body { padding: 36px 40px 44px; font-family: var(--f-mono); font-size: 30px; line-height: 1.6; min-height: 620px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ps { color: var(--cobalt-soft); }
+.dim { color: var(--on-night-2); }
+.story { color: #fff; }
+.story .pr { color: var(--cobalt-soft); }
+.ok { color: var(--ok); }
+.caret { display: inline-block; width: .55em; height: 1.05em; vertical-align: -.18em; background: var(--cobalt-soft); animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.spin { display: inline-block; width: 1em; text-align: center; }
+</style>
+
+<!-- intro -->
+<section class="scene" id="intro">
+  <div class="glow"></div>
+  <div class="card">
+    <div class="mark in"><svg viewBox="0 0 24 24" fill="none"><g stroke="#8EA2FF" stroke-width="1.6"><path d="M3 7.5 12 3l9 4.5-9 4.5z"/><path d="m3 12 9 4.5 9-4.5" opacity=".7"/><path d="m3 16.5 9 4.5 9-4.5" opacity=".4"/></g></svg>Chainmind</div>
+    <div class="big in">The model lives<br><em>inside the chain.</em></div>
+    <div class="small in">A language model that runs inside NEAR smart contracts. Every validator computes the same answer.</div>
+  </div>
+</section>
+
+<!-- terminal -->
+<section class="scene" id="terminal">
+  <div class="glow" style="opacity:.6"></div>
+  <div class="label">Live on NEAR testnet · real transaction</div>
+  <div class="term-wrap">
+    <div class="term">
+      <div class="bar"><i></i><i></i><i></i><span>~/chainmind/scripts</span></div>
+      <div class="body" id="tbody"></div>
+    </div>
+  </div>
+</section>
+
+<!-- outro -->
+<section class="scene" id="outro">
+  <div class="glow"></div>
+  <div class="card">
+    <div class="mark in"><svg viewBox="0 0 24 24" fill="none"><g stroke="#8EA2FF" stroke-width="1.6"><path d="M3 7.5 12 3l9 4.5-9 4.5z"/><path d="m3 12 9 4.5 9-4.5" opacity=".7"/><path d="m3 16.5 9 4.5 9-4.5" opacity=".4"/></g></svg>Chainmind</div>
+    <div class="big in" style="font-size:120px">Verifiable AI for<br><em>NEAR smart contracts.</em></div>
+    <div class="pill in">Live on testnet · <b>mind-mwdofvuu.leston.testnet</b></div>
+    <div class="small in" style="font-size:28px">Built for the NEAR Hackathon 2026 · @NEARProtocol #NEARHackathon</div>
+  </div>
+</section>
+
+<script>
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const scene = new URLSearchParams(location.search).get("scene") || "intro";
+const el = document.getElementById(scene);
+el.classList.add("on");
+
+async function cards() {
+  await document.fonts.ready;
+  await sleep(250);
+  for (const n of el.querySelectorAll(".in")) { n.classList.add("go"); await sleep(260); }
+  window.__done = true;
+}
+
+// Real output of `node generate.mjs` against the live contract (seed 1).
+const CMD = 'node generate.mjs "Once upon a time" --as leston.testnet --max 48 --seed 1';
+const STORY = ", there was a little boy named Tim. Tim loved to discover new friends. One day, he went to the park to play at it. He saw a big sp";
+const TX = "https://testnet.nearblocks.io/txns/9BbubPghC1nW2yvrmFvuGfbvwytLGE88zAJrw59tTW1K";
+
+async function terminal() {
+  await document.fonts.ready;
+  const body = document.getElementById("tbody");
+  const caret = document.createElement("i"); caret.className = "caret";
+  const line = (html) => { const d = document.createElement("div"); d.innerHTML = html; body.insertBefore(d, caret); return d; };
+  body.append(caret);
+  const prompt = line('<span class="ps">$</span> ');
+  await sleep(500);
+  for (const ch of CMD) { prompt.append(ch); await sleep(28); }
+  await sleep(450);
+  const wait = line('<span class="dim"><span class="spin">⠋</span> sending transaction · every validator runs the model…</span>');
+  const frames = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏";
+  for (let i = 0; i < 26; i++) { wait.querySelector(".spin").textContent = frames[i % frames.length]; await sleep(80); }
+  wait.remove();
+  line(" ");
+  const story = line('<span class="story"><span class="pr">Once upon a time</span></span>');
+  const s = story.firstChild;
+  for (const w of STORY.split(/(?<= )/)) { s.append(w); await sleep(55); }
+  await sleep(500);
+  line(" ");
+  line('<span class="dim">[48 tokens · stop=max_tokens · seed=1 · </span><span class="ok">194.4 Tgas</span><span class="dim">]</span>');
+  await sleep(400);
+  line(`<span class="dim">every validator ran this:</span> ${TX}`);
+  window.__done = true;
+}
+
+// The recorder calls __play() once capture has started; open with &autoplay to watch.
+window.__play = () => (scene === "terminal" ? terminal : cards)();
+if (new URLSearchParams(location.search).has("autoplay")) window.__play();
+</script>
