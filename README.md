@@ -6,6 +6,8 @@ The first model is a storyteller: [stories260K](https://huggingface.co/karpathy/
 
 **Live on NEAR testnet:** [`mind-mwdofvuu.leston.testnet`](https://testnet.nearblocks.io/address/mind-mwdofvuu.leston.testnet)
 
+**Live demo:** https://chainmind-theta.vercel.app — the sealed model runs in your browser with the same engine as the contract.
+
 | What | Transaction |
 |---|---|
 | Model sealed (sha256 `663eb9fb…3227cb48`) | [EQyoHQ61…](https://testnet.nearblocks.io/txns/EQyoHQ613CxHj9LhHavV5VCwtgUe9goupJdYwzpRzEB2) |
@@ -13,6 +15,24 @@ The first model is a storyteller: [stories260K](https://huggingface.co/karpathy/
 | Endless Story, chapter 0 | [B7dEG1dD…](https://testnet.nearblocks.io/txns/B7dEG1dDM4cd6tjnZczMtBD5dPU19LKow9Y4EAGVmTTr) |
 
 The seed-1 transaction wrote *"Once upon a time, there was a little boy named Tim. Tim loved to discover new friends…"*, the same words the native build and the browser build produce for the same prompt, temperature and seed.
+
+## For judges: check it in 5 minutes
+
+Each step says what to do and what you should see.
+
+1. **Ask the live contract, free.** Install [near-cli-rs](https://github.com/near/near-cli-rs) (`npm install -g near-cli-rs`), then run:
+   ```bash
+   near contract call-function as-read-only mind-mwdofvuu.leston.testnet complete json-args '{"prompt":"The cat","max_tokens":32,"seed":"7"}' network-config testnet now
+   ```
+   You should see a story starting *"The cat and a family were playing in the sun."* and `token_ids` starting `[269, 261, 272, 314, 310, 382, …]`, computed inside the NEAR VM.
+2. **See a transaction where validators ran the model.** Open [9BbubPgh… on NearBlocks](https://testnet.nearblocks.io/txns/9BbubPghC1nW2yvrmFvuGfbvwytLGE88zAJrw59tTW1K). The receipt log holds a `generation` event with the text *"…there was a little boy named Tim…"* and about 192 Tgas used for inference.
+3. **Reproduce that transaction on your machine.** From the repo root:
+   ```bash
+   cargo run -p chainmind-tools --release --bin chainmind -- run models/stories260k.cmnd "Once upon a time" --max 48 --temp 0.8 --seed 1
+   ```
+   It prints the same story, word for word.
+4. **Run the tests.** `cargo test -p chainmind-engine -p chainmind-tools -p chainmind` passes 18 tests (5 engine, 6 tools, 7 contract). The contract test `onchain_output_matches_offchain_engine` checks that the contract and the plain engine agree token for token.
+5. **Open the live demo.** Go to https://chainmind-theta.vercel.app (or run it locally: `python3 -m http.server 8000 --directory site`, then open http://localhost:8000). The hero writes stories live with the same engine and model. Scroll to "Three machines. One story.": all three columns show "32 / 32 match the chain". The third column is computed by your browser on the spot. In "Run the sealed model yourself", prompt "The little robot" with seed 42 and temperature 0.80 gives the fingerprint `563CEC21` on every machine.
 
 ## Why it matters
 
@@ -73,7 +93,7 @@ It prints the same text and token ids the validators produced.
 python3 -m http.server 8000 --directory site
 ```
 
-Then open http://localhost:8000. On load it re-runs one of the NEAR VM test cases and shows "identical, all 32" when the browser matches.
+Then open http://localhost:8000. In the "Three machines. One story." section the browser re-runs one of the NEAR VM test cases and shows "32 / 32 match the chain" when its tokens are identical.
 
 ## Determinism: three machines, one story
 
@@ -227,7 +247,18 @@ For scale: SmolLM2-135M, one of the smallest models Ollama runs, is about 520 ti
 
 ## NEAR Hackathon 2026
 
-Built for the NEAR Hackathon (1–14 Nov 2026). Primary track: **13 Open Innovation**. The building block also fits 09 Games, 10 NFTs and 06 AI Security.
+Built for the NEAR Hackathon (1–14 Nov 2026). Track: **Open Innovation** (`open`).
+
+All code in this repository was written during the hackathon window, starting 12 Nov 2026; there is no pre-hackathon baseline.
+
+## Built with
+
+Libraries, tools and outside work used in this project (hackathon rule Q-005):
+
+- **Rust:** [near-sdk](https://crates.io/crates/near-sdk) 5.30 for the contract; [near-vm-runner](https://crates.io/crates/near-vm-runner), near-parameters and near-primitives-core 0.38.1 (nearcore) for the gas benchmark; sha2 and base64.
+- **JavaScript:** [near-api-js](https://github.com/near/near-api-js) 5 for the deploy and generate scripts; [GSAP](https://gsap.com) 3.12.5 with ScrollTrigger for the landing page animations; fonts Bricolage Grotesque, Geist and Geist Mono from Google Fonts.
+- **Tools:** near-cli-rs, Google Chrome (headless, for recording the demo), ffmpeg, Python with numpy and scipy (the demo soundtrack is synthesized by `demo/music.py`).
+- **Model and design:** stories260K weights and tokenizer from llama2.c; the inference loop follows llama2.c's `run.c`.
 
 ## Credits and licence
 

@@ -45,8 +45,9 @@ Required by the hackathon: say you built it at NEAR HACKATHON, tag @NEARProtocol
 >
 > Every validator runs the model in the transaction and gets the same words. No oracle, no API key, no trusted hardware.
 >
+> Try it in your browser: https://chainmind-theta.vercel.app
 > Live on testnet: mind-mwdofvuu.leston.testnet
 >
 > @NEARProtocol #NEARHackathon
 
-Add the GitHub and Vercel links once they exist. If the post is over the length limit, drop the second paragraph first.
+Add the GitHub link once the repo is public. If the post is over the length limit, drop the second paragraph first.
