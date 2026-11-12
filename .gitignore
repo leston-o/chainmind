@@ -3,5 +3,4 @@
 node_modules/
 /models/download/
 .DS_Store
-.claude/
 /demo/out/
