@@ -1,0 +1,9 @@
+[package]
+name = "chainmind-engine"
+version = "0.1.0"
+edition = "2021"
+description = "Deterministic int8 Llama-style transformer inference, identical on native and wasm"
+license = "MIT"
+publish = false
+
+[dependencies]

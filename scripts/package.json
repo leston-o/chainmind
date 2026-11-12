@@ -1,0 +1,12 @@
+{
+  "name": "chainmind-scripts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy": "node deploy.mjs",
+    "generate": "node generate.mjs"
+  },
+  "dependencies": {
+    "near-api-js": "^5.1.1"
+  }
+}

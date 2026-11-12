@@ -1,0 +1,6 @@
+/target
+/target-web
+node_modules/
+/models/download/
+.DS_Store
+.claude/

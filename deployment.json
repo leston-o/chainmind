@@ -1,0 +1,8 @@
+{
+  "network": "testnet",
+  "contract_id": "mind-mwdofvuu.leston.testnet",
+  "model_sha256": "663eb9fbc1a70d1a223927566d87410933138b20038da038170a2af13227cb48",
+  "model_bytes": 298843,
+  "locked": false,
+  "seal_tx": "EQyoHQ613CxHj9LhHavV5VCwtgUe9goupJdYwzpRzEB2"
+}

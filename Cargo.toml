@@ -1,0 +1,19 @@
+[workspace]
+resolver = "2"
+members = ["engine", "contract", "tools", "vmbench", "web"]
+
+[profile.release]
+codegen-units = 1
+opt-level = 3
+lto = true
+debug = false
+panic = "abort"
+overflow-checks = false
+
+# Fast-to-build profile for the native VM benchmark (nearcore + wasmtime are huge).
+[profile.bench-native]
+inherits = "release"
+lto = false
+codegen-units = 16
+opt-level = 2
+panic = "unwind"

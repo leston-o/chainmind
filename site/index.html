@@ -1,0 +1,891 @@
+<meta charset="utf-8">
+<title>Chainmind</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="A 260,032-parameter language model stored in a NEAR smart contract. Every validator runs it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=DotGothic16&family=Young+Serif&display=swap">
+<style>
+/* Layout: thesis on the left, a working thermal receipt printer on the right;
+   below, the page continues as lengths of receipt tape laid on a desk. */
+:root {
+  --desk: #DCDFD8;
+  --desk-band: #CFD3CB;
+  --text: #1E1C27;
+  --text-soft: #4C4958;
+  --rule: rgba(30, 28, 39, .16);
+  --paper: #F7F7F1;
+  --paper-shade: #E8E8E0;
+  --ink: #2B2739;
+  --ink-soft: #66627A;
+  --signal: #C42F2A;
+  --device: #24232B;
+  --device-hi: #3B3A47;
+  --device-text: #C9C7D3;
+  --focus: #C42F2A;
+
+  --f-display: "Young Serif", "Iowan Old Style", Georgia, serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-dot: "DotGothic16", "Courier New", ui-monospace, monospace;
+
+  --s-1: .8125rem;
+  --s0: 1rem;
+  --s1: 1.1875rem;
+  --s2: 1.5rem;
+  --s3: 2.125rem;
+  --s4: clamp(2.5rem, 1.6rem + 3.6vw, 4.5rem);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --desk: #15161B;
+    --desk-band: #1C1D24;
+    --text: #ECEAF2;
+    --text-soft: #A7A4B4;
+    --rule: rgba(236, 234, 242, .14);
+    --paper: #E9E8E0;
+    --paper-shade: #D6D5CC;
+    --device: #0C0C10;
+    --device-hi: #2C2B36;
+    --device-text: #B9B7C4;
+    --focus: #FF6A5E;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --desk: #15161B;
+  --desk-band: #1C1D24;
+  --text: #ECEAF2;
+  --text-soft: #A7A4B4;
+  --rule: rgba(236, 234, 242, .14);
+  --paper: #E9E8E0;
+  --paper-shade: #D6D5CC;
+  --device: #0C0C10;
+  --device-hi: #2C2B36;
+  --device-text: #B9B7C4;
+  --focus: #FF6A5E;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--desk);
+  color: var(--text);
+  font-family: var(--f-body);
+  font-size: var(--s0);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-underline-offset: .2em; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.wrap {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3 { font-family: var(--f-display); font-weight: 400; text-wrap: balance; margin: 0; }
+p { margin: 0; }
+.label {
+  font-family: var(--f-dot);
+  font-size: var(--s-1);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+
+/* ---------- top bar ---------- */
+.top { padding-block: 20px; }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.mark { display: flex; align-items: center; gap: 10px; font-family: var(--f-display); font-size: var(--s1); }
+.mark svg { width: 22px; height: 22px; }
+.top nav { display: flex; gap: 20px; flex-wrap: wrap; }
+.top nav a { font-family: var(--f-dot); font-size: var(--s-1); letter-spacing: .08em; text-transform: uppercase; text-decoration: none; color: var(--text-soft); }
+.top nav a:hover { color: var(--text); }
+
+/* ---------- hero ---------- */
+.hero { padding-block: 24px 72px; }
+.hero .wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: start;
+}
+.thesis { display: grid; gap: 28px; padding-top: clamp(8px, 4vw, 56px); min-width: 0; }
+.thesis h1 { font-size: var(--s4); line-height: 1.04; letter-spacing: -.015em; }
+.thesis h1 em { font-style: normal; color: var(--signal); }
+.lede { font-size: var(--s1); color: var(--text-soft); max-width: 34em; }
+.lede strong { color: var(--text); font-weight: 700; }
+.facts { display: flex; flex-wrap: wrap; gap: 10px 28px; padding-top: 20px; border-top: 1px dashed var(--rule); }
+.fact { display: grid; gap: 2px; }
+.fact b { font-family: var(--f-display); font-weight: 400; font-size: var(--s2); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.hint { font-size: var(--s-1); color: var(--text-soft); display: flex; gap: 10px; align-items: baseline; }
+.hint::before { content: "→"; font-family: var(--f-dot); color: var(--signal); }
+
+/* ---------- printer ---------- */
+.printer { position: relative; width: 100%; max-width: 420px; justify-self: center; min-width: 0; }
+.device {
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(180deg, var(--device-hi), var(--device) 38%);
+  border-radius: 18px 18px 8px 8px;
+  padding: 16px 18px 26px;
+  color: var(--device-text);
+  box-shadow: 0 18px 30px -18px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08);
+}
+.device-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.badge { font-family: var(--f-dot); font-size: var(--s-1); letter-spacing: .12em; }
+.led { width: 9px; height: 9px; border-radius: 50%; background: #4A4957; box-shadow: inset 0 0 0 1px rgba(0,0,0,.4); }
+.led.on { background: #FF4B3E; box-shadow: 0 0 10px 2px rgba(255, 75, 62, .6); animation: blink .5s steps(2) infinite; }
+@keyframes blink { 50% { opacity: .35; } }
+.controls { display: grid; grid-template-columns: minmax(0, 1fr) 84px; gap: 8px; margin-top: 14px; }
+.field { display: grid; gap: 4px; min-width: 0; }
+.field label { font-family: var(--f-dot); font-size: .6875rem; letter-spacing: .1em; text-transform: uppercase; color: #8F8D9C; }
+.field input {
+  width: 100%;
+  min-width: 0;
+  font-family: var(--f-dot);
+  font-size: var(--s0);
+  color: #F2F1F6;
+  background: rgba(0,0,0,.35);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+.field input:focus { outline: none; border-color: #FF6A5E; }
+.print-row { display: flex; gap: 8px; margin-top: 10px; }
+.btn {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--f-dot);
+  font-size: var(--s0);
+  letter-spacing: .06em;
+  border-radius: 999px;
+  padding: 9px 18px;
+}
+.btn-print { flex: 1; background: var(--signal); color: #FFF7F5; box-shadow: 0 3px 0 #7E1C18; }
+.btn-print:active { transform: translateY(2px); box-shadow: 0 1px 0 #7E1C18; }
+.btn-print[disabled] { opacity: .6; cursor: progress; }
+.btn-ghost { background: rgba(255,255,255,.08); color: var(--device-text); }
+.btn-ghost:hover { background: rgba(255,255,255,.14); }
+.slot {
+  position: absolute;
+  left: 22px; right: 22px; bottom: 9px;
+  height: 7px;
+  border-radius: 4px;
+  background: #050507;
+  box-shadow: inset 0 2px 3px rgba(0,0,0,.9);
+}
+
+.tape {
+  position: relative;
+  z-index: 1;
+  margin: -6px 34px 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f-dot);
+  font-size: .9375rem;
+  line-height: 1.55;
+  padding: 26px 22px 34px;
+  box-shadow: 0 1px 0 var(--paper-shade), 0 22px 28px -22px rgba(0,0,0,.45);
+  /* torn bottom edge */
+  -webkit-mask: linear-gradient(#000 0 0) top / 100% calc(100% - 10px) no-repeat,
+                conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 14px 10px repeat-x;
+          mask: linear-gradient(#000 0 0) top / 100% calc(100% - 10px) no-repeat,
+                conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 14px 10px repeat-x;
+}
+.tape::before {
+  /* shadow of the slot falling on fresh paper */
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 22px;
+  background: linear-gradient(rgba(0,0,0,.14), transparent);
+}
+.r-head { text-align: center; display: grid; gap: 0; }
+.r-title { font-size: 1.25rem; letter-spacing: .2em; }
+.r-sub { color: var(--ink-soft); font-size: var(--s-1); letter-spacing: .1em; }
+.r-cut { border: 0; border-top: 2px dashed currentColor; opacity: .35; margin: 14px 0; }
+.r-kv { display: grid; grid-template-columns: 7.2em minmax(0, 1fr); gap: 0 10px; font-size: var(--s-1); letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+.r-kv dt { color: var(--ink-soft); }
+.r-kv dd { margin: 0; overflow-wrap: anywhere; }
+.r-story { white-space: pre-wrap; overflow-wrap: anywhere; min-height: 7.75em; }
+.r-story .p { color: var(--signal); }
+.r-story .t { animation: ink .28s ease-out both; }
+@keyframes ink { from { opacity: 0; filter: blur(1.5px); } to { opacity: 1; filter: none; } }
+.r-cmd { font-size: .75rem; color: var(--ink-soft); overflow-wrap: anywhere; }
+.r-bar { display: block; width: 100%; height: 44px; margin-top: 12px; }
+.r-thanks { text-align: center; font-size: var(--s-1); letter-spacing: .14em; margin-top: 8px; }
+.cursor { display: inline-block; width: .55em; height: 1em; background: var(--ink); vertical-align: -.12em; animation: blink .6s steps(2) infinite; }
+
+/* ---------- tape sections ---------- */
+section { padding-block: 72px; }
+.band { background: var(--desk-band); }
+.sec-head { display: grid; gap: 12px; max-width: 46rem; margin-bottom: 36px; }
+.sec-head h2 { font-size: var(--s3); line-height: 1.12; }
+.sec-head p { color: var(--text-soft); font-size: var(--s1); }
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; border-top: 2px solid var(--text); }
+.steps li { display: grid; gap: 10px; align-content: start; padding: 18px 18px 0 0; min-width: 0; }
+.steps li + li { padding-left: 18px; border-left: 1px dashed var(--rule); }
+.steps .n { font-family: var(--f-dot); color: var(--signal); font-size: var(--s0); }
+.steps h3 { font-size: var(--s1); line-height: 1.25; }
+.steps p { color: var(--text-soft); font-size: .9375rem; }
+
+.proof { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.slip {
+  background: var(--paper);
+  color: var(--ink);
+  padding: 18px 18px 22px;
+  font-family: var(--f-dot);
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  min-width: 0;
+  box-shadow: 0 1px 0 var(--paper-shade), 0 16px 22px -20px rgba(0,0,0,.5);
+}
+.slip .where { font-size: var(--s-1); letter-spacing: .12em; color: var(--ink-soft); text-transform: uppercase; }
+.slip .what { font-family: var(--f-display); font-size: var(--s1); line-height: 1.25; }
+.slip code { font-family: var(--f-dot); font-size: .8125rem; overflow-wrap: anywhere; }
+.slip .ok { color: var(--signal); }
+.proof-note { margin-top: 20px; color: var(--text-soft); max-width: 46rem; }
+.proof-note code { font-family: var(--f-dot); font-size: .875rem; color: var(--text); }
+
+.gas-wrap { overflow-x: auto; }
+.gas { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; min-width: 520px; }
+.gas th, .gas td { text-align: left; padding: 12px 14px 12px 0; border-bottom: 1px dashed var(--rule); vertical-align: top; }
+.gas th { font-family: var(--f-dot); font-weight: 400; font-size: var(--s-1); letter-spacing: .08em; text-transform: uppercase; color: var(--text-soft); }
+.gas td.num { font-family: var(--f-dot); white-space: nowrap; }
+.gas .meter { display: block; height: 8px; background: var(--rule); border-radius: 4px; overflow: hidden; min-width: 120px; margin-top: 7px; }
+.gas .meter i { display: block; height: 100%; background: var(--text); }
+.gas tr.limit .meter i { background: var(--signal); }
+.gas .say { color: var(--text-soft); font-style: italic; }
+.gas-note { margin-top: 16px; color: var(--text-soft); font-size: .9375rem; max-width: 46rem; }
+
+.story-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+.story-copy { display: grid; gap: 16px; color: var(--text-soft); font-size: var(--s1); }
+.story-copy strong { color: var(--text); }
+.chapters { display: grid; gap: 0; background: var(--paper); color: var(--ink); padding: 22px; font-family: var(--f-dot); box-shadow: 0 16px 22px -20px rgba(0,0,0,.5); }
+.chapter { display: grid; gap: 4px; padding-block: 12px; border-bottom: 2px dashed rgba(43,39,57,.22); }
+.chapter:first-child { padding-top: 0; }
+.chapter:last-child { border-bottom: 0; padding-bottom: 0; }
+.chapter .meta { font-size: .75rem; letter-spacing: .1em; color: var(--ink-soft); text-transform: uppercase; }
+.chapter .nudge { color: var(--signal); }
+.live { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; font-size: var(--s-1); color: var(--text-soft); overflow-wrap: anywhere; }
+.live a { color: var(--text); }
+.chapter .meta a { color: inherit; }
+.status { display: inline-flex; gap: 8px; align-items: center; font-family: var(--f-dot); font-size: var(--s-1); letter-spacing: .08em; text-transform: uppercase; color: var(--text); border: 1px dashed var(--text-soft); border-radius: 999px; padding: 4px 12px; justify-self: start; }
+.status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--signal); }
+
+.spec { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border-top: 2px solid var(--text); }
+.spec div { padding: 16px 16px 16px 0; border-bottom: 1px dashed var(--rule); display: grid; gap: 4px; min-width: 0; }
+.spec dt { font-family: var(--f-dot); font-size: var(--s-1); letter-spacing: .08em; text-transform: uppercase; color: var(--text-soft); }
+.spec dd { margin: 0; font-family: var(--f-display); font-size: var(--s2); line-height: 1.15; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.spec dd.small { font-family: var(--f-dot); font-size: .875rem; line-height: 1.5; }
+
+footer { padding-block: 40px 56px; border-top: 1px dashed var(--rule); }
+footer .wrap { display: flex; justify-content: space-between; gap: 16px 32px; flex-wrap: wrap; color: var(--text-soft); font-size: .9375rem; }
+footer p { max-width: 38rem; }
+
+@media (max-width: 900px) {
+  .hero .wrap { grid-template-columns: minmax(0, 1fr); }
+  .steps { grid-template-columns: minmax(0, 1fr); border-top: 0; }
+  .steps li, .steps li + li { padding: 16px 0; border-left: 0; border-top: 1px dashed var(--rule); grid-template-columns: 2.5rem minmax(0, 1fr); }
+  .steps li > :not(.n) { grid-column: 2; }
+  .steps .n { grid-row: span 2; }
+  .proof { grid-template-columns: minmax(0, 1fr); }
+  .story-grid { grid-template-columns: minmax(0, 1fr); }
+  .spec { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 420px) {
+  .tape { margin-inline: 18px; padding-inline: 16px; }
+  .controls { grid-template-columns: minmax(0, 1fr) 72px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ---------- why / build / use / scale ---------- */
+.guarantees { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 2px solid var(--text); }
+.guarantees li { padding: 18px 20px 20px 0; border-bottom: 1px dashed var(--rule); display: grid; gap: 6px; align-content: start; min-width: 0; }
+.guarantees li:not(:nth-child(3n+1)) { padding-left: 20px; border-left: 1px dashed var(--rule); }
+.guarantees h3 { font-size: var(--s1); line-height: 1.25; display: flex; gap: 10px; align-items: baseline; }
+.guarantees h3::before { content: "■"; font-family: var(--f-dot); color: var(--signal); font-size: .7em; flex: none; }
+.guarantees p { color: var(--text-soft); font-size: .9375rem; }
+
+.uses { width: 100%; border-collapse: collapse; min-width: 560px; }
+.uses th, .uses td { text-align: left; padding: 14px 18px 14px 0; border-bottom: 1px dashed var(--rule); vertical-align: top; }
+.uses th { font-family: var(--f-dot); font-weight: 400; font-size: var(--s-1); letter-spacing: .08em; text-transform: uppercase; color: var(--text-soft); }
+.uses td:first-child { font-family: var(--f-display); font-size: var(--s1); line-height: 1.3; width: 13em; }
+.uses td:nth-child(2) { color: var(--text-soft); }
+.uses td:last-child { width: 9.5em; }
+.track { display: inline-block; font-family: var(--f-dot); font-size: .75rem; letter-spacing: .06em; border: 1px solid var(--text-soft); border-radius: 999px; padding: 1px 9px; margin: 0 4px 4px 0; white-space: nowrap; }
+
+code.inline { font-family: var(--f-dot); font-size: .9em; color: var(--text); }
+.howto { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.howto .slip h3 { font-size: var(--s1); line-height: 1.25; }
+.howto .slip p { font-family: var(--f-body); font-size: .9375rem; color: var(--ink-soft); }
+.slip.wide { grid-column: 1 / -1; }
+.code { display: flex; flex-direction: column-reverse; background: var(--paper-shade); border-radius: 6px; min-width: 0; }
+.code pre { margin: 0; padding: 4px 14px 12px; overflow-x: auto; font-family: var(--f-dot); font-size: .8125rem; line-height: 1.55; white-space: pre; color: var(--ink); }
+.copy { align-self: flex-end; margin: 7px 7px 0; font-family: var(--f-dot); font-size: .75rem; letter-spacing: .06em; background: var(--paper); color: var(--ink); border: 1px solid rgba(43, 39, 57, .28); border-radius: 999px; padding: 2px 10px; cursor: pointer; }
+.copy:hover { border-color: var(--ink); }
+
+.limits { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 2px solid var(--text); margin: 0 0 44px; }
+.limits div { padding: 16px 16px 16px 0; border-bottom: 1px dashed var(--rule); display: grid; gap: 4px; align-content: start; min-width: 0; }
+.limits dd { margin: 0; font-family: var(--f-display); font-size: var(--s2); line-height: 1.15; }
+.limits dd small { display: block; font-family: var(--f-body); font-size: .875rem; line-height: 1.45; color: var(--text-soft); margin-top: 6px; }
+.roadmap { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.stage { display: grid; gap: 10px; align-content: start; padding-top: 16px; border-top: 2px solid var(--text); min-width: 0; }
+.stage .when { font-family: var(--f-dot); font-size: var(--s-1); letter-spacing: .1em; text-transform: uppercase; color: var(--signal); }
+.stage:not(:first-child) .when { color: var(--text-soft); }
+.stage h3 { font-size: var(--s1); line-height: 1.25; }
+.stage p { color: var(--text-soft); font-size: .9375rem; }
+
+@media (max-width: 900px) {
+  .guarantees { grid-template-columns: minmax(0, 1fr); }
+  .guarantees li, .guarantees li:not(:nth-child(3n+1)) { padding: 16px 0; border-left: 0; }
+  .howto { grid-template-columns: minmax(0, 1fr); }
+  .limits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .roadmap { grid-template-columns: minmax(0, 1fr); }
+}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="mark">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="2" width="18" height="9" rx="3" fill="currentColor"/><path d="M6 11h12v11l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5L6 22z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 15h6M9 18h4" stroke="currentColor" stroke-width="1.6"/></svg>
+      Chainmind
+    </div>
+    <nav aria-label="Sections">
+      <a href="#why">Why</a>
+      <a href="#build">What to build</a>
+      <a href="#use">Use it</a>
+      <a href="#scale">Scale</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero" aria-labelledby="h1">
+    <div class="wrap">
+      <div class="thesis">
+        <span class="label">Verifiable AI for NEAR contracts</span>
+        <h1 id="h1">Every validator tells the <em>same</em> bedtime story.</h1>
+        <p class="lede">Chainmind runs AI models inside NEAR smart contracts. Every validator executes the model as part of the transaction and gets the exact same answer, so a contract can use AI <strong>without trusting an oracle, an API company or special hardware.</strong> The first model is a storyteller. Once sealed, nobody can change it, switch it off or quietly swap it.</p>
+        <div class="facts" id="facts">
+          <div class="fact"><span class="label">Parameters</span><b data-k="params">260,032</b></div>
+          <div class="fact"><span class="label">Model size</span><b data-k="bytes">299 KB</b></div>
+          <div class="fact"><span class="label">Per transaction</span><b>up to 70 tokens</b></div>
+        </div>
+        <p class="hint">The printer is running that exact model in your browser, with the same code the contract runs. Change the seed and print again.</p>
+        <p class="live"><span class="status">Live on NEAR testnet</span> <a href="https://testnet.nearblocks.io/address/mind-mwdofvuu.leston.testnet">mind-mwdofvuu.leston.testnet</a> · <a href="https://testnet.nearblocks.io/txns/9BbubPghC1nW2yvrmFvuGfbvwytLGE88zAJrw59tTW1K">see seed 1 written onchain</a></p>
+      </div>
+
+      <div class="printer">
+        <div class="device">
+          <div class="device-row">
+            <span class="badge">CM-260K · INT8</span>
+            <span class="led" id="led" aria-hidden="true"></span>
+          </div>
+          <form class="controls" id="form" autocomplete="off">
+            <div class="field">
+              <label for="prompt">Start of story</label>
+              <input id="prompt" name="prompt" maxlength="120" value="Once upon a time">
+            </div>
+            <div class="field">
+              <label for="seed">Seed</label>
+              <input id="seed" name="seed" inputmode="numeric" pattern="[0-9]*" maxlength="9" value="1">
+            </div>
+          </form>
+          <div class="print-row">
+            <button class="btn btn-print" id="print" type="submit" form="form">Print a story</button>
+            <button class="btn btn-ghost" id="shuffle" type="button" aria-label="Pick a random seed and print">New seed</button>
+          </div>
+          <span class="slot" aria-hidden="true"></span>
+        </div>
+
+        <article class="tape" id="tape" aria-live="polite" aria-label="Inference receipt">
+          <div class="r-head">
+            <span class="r-title">CHAINMIND</span>
+            <span class="r-sub">INFERENCE RECEIPT · <span id="r-run">RUN 0001</span></span>
+          </div>
+          <hr class="r-cut">
+          <dl class="r-kv">
+            <dt>MODEL</dt><dd>stories260K int8</dd>
+            <dt>SHA-256</dt><dd id="r-sha">663eb9fb…3227cb48</dd>
+            <dt>SEED</dt><dd id="r-seed">1</dd>
+            <dt>TEMP</dt><dd>0.80</dd>
+          </dl>
+          <hr class="r-cut">
+          <p class="r-story" id="r-story"><span class="p">Once upon a time</span>, there was a little boy named Tim. Tim loved to discover new friends. One day, he went to the park to play at it. He saw a big space. Tim liked to play with the space.</p>
+          <hr class="r-cut">
+          <dl class="r-kv">
+            <dt>TOKENS</dt><dd id="r-tokens">5 prompt + 64 new</dd>
+            <dt>ONCHAIN</dt><dd id="r-gas">≈ 260 Tgas of 300</dd>
+            <dt>HERE</dt><dd id="r-time">loading model…</dd>
+            <dt>IDS HASH</dt><dd id="r-hash">—</dd>
+          </dl>
+          <hr class="r-cut">
+          <p class="r-cmd" id="r-cmd">chainmind run stories260k.cmnd "Once upon a time" --max 64 --temp 0.8 --seed 1</p>
+          <svg class="r-bar" id="r-bar" viewBox="0 0 300 44" preserveAspectRatio="none" role="img" aria-label="Barcode of the generated token ids"></svg>
+          <p class="r-thanks">SAME SEED · SAME WORDS</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="why" aria-labelledby="h-why">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="label">A building block, not just a demo</span>
+        <h2 id="h-why">AI that contracts can trust without trusting anyone</h2>
+        <p>Today, when a smart contract wants an AI's opinion, it has to trust someone: an oracle, an API company or a secure server. Chainmind removes that middleman by running the model inside the contract itself.</p>
+      </div>
+      <ul class="guarantees">
+        <li><h3>Nobody can fake the answer</h3><p>The model runs inside consensus, so a result is as final as a token transfer.</p></li>
+        <li><h3>Nobody can change the model</h3><p>After sealing, the weights are fixed forever and pinned by their SHA-256 hash.</p></li>
+        <li><h3>Nobody can switch it off</h3><p>No company, no API key and no server that can be shut down.</p></li>
+        <li><h3>Anyone can check it</h3><p>The same input and seed give the same output on any machine, bit for bit.</p></li>
+        <li><h3>Other contracts can call it</h3><p>One model on chain becomes a shared library that every app on NEAR can use.</p></li>
+        <li><h3>It costs cents</h3><p>A 48-token story used 194 Tgas on testnet, about 0.02 NEAR at the base gas price.</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="inside" aria-labelledby="h-inside">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="label">What one call to generate() does</span>
+        <h2 id="h-inside">Inside a single NEAR transaction</h2>
+        <p>The contract is ordinary WebAssembly. Each validator that executes your transaction does all of this, and they all get the same answer.</p>
+      </div>
+      <ol class="steps">
+        <li><span class="n">1</span><h3>Loads the weights</h3><p>Reads 298,843 bytes from contract storage: int8 matrices, the tokenizer and position tables.</p></li>
+        <li><span class="n">2</span><h3>Reads your prompt</h3><p>Splits it into tokens from a 512-piece vocabulary, the way the model was trained.</p></li>
+        <li><span class="n">3</span><h3>Runs the transformer</h3><p>Five layers, eight attention heads, 64 numbers wide. Integer matrix maths keeps it cheap and exact.</p></li>
+        <li><span class="n">4</span><h3>Picks the next token</h3><p>Samples from the model's odds using the block's random seed, or yours if you pass one.</p></li>
+        <li><span class="n">5</span><h3>Stops before gas runs out</h3><p>Repeats until the story ends or gas gets low, then returns the text and records it on chain.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band" id="proof" aria-labelledby="h-proof">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="label">Determinism</span>
+        <h2 id="h-proof">Three machines, one story</h2>
+        <p>Floating-point AI usually gives slightly different answers on different hardware. Chainmind uses integer matrix products, its own exponent function and a fully specified random generator, so the output is reproducible bit for bit.</p>
+      </div>
+      <div class="proof">
+        <div class="slip">
+          <span class="where">NEAR VM · mainnet gas rules</span>
+          <span class="what">The contract, run by nearcore's own runtime</span>
+          <code>"The cat" · seed 7 → [269, 261, 272, 314, 310, 382, …]</code>
+          <span class="ok">32 tokens</span>
+        </div>
+        <div class="slip">
+          <span class="where">Laptop · x86-64 native</span>
+          <span class="what">The same engine compiled for a normal computer</span>
+          <code>"The cat" · seed 7 → [269, 261, 272, 314, 310, 382, …]</code>
+          <span class="ok">identical, all 32</span>
+        </div>
+        <div class="slip">
+          <span class="where">This page · your browser</span>
+          <span class="what">The same engine as a 72 KB WebAssembly file</span>
+          <code id="proof-browser">"The cat" · seed 7 → running…</code>
+          <span class="ok" id="proof-browser-ok">checking…</span>
+        </div>
+      </div>
+      <p class="proof-note">Anyone can check an onchain story: take the prompt, temperature and seed from the transaction and run <code>chainmind run</code> on your own machine. You get the same tokens. The live testnet contract wrote <a href="https://testnet.nearblocks.io/txns/9BbubPghC1nW2yvrmFvuGfbvwytLGE88zAJrw59tTW1K">the same "Tim" story for seed 1</a> that the printer above prints.</p>
+    </div>
+  </section>
+
+  <section id="build" aria-labelledby="h-build">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="label">Stories are the first model</span>
+        <h2 id="h-build">What you can build with it</h2>
+        <p>Anything where people need to know the AI wasn't rigged, changed or switched off.</p>
+      </div>
+      <div class="gas-wrap">
+        <table class="uses">
+          <thead><tr><th>Use</th><th>Example</th><th>Fits</th></tr></thead>
+          <tbody>
+            <tr><td>Fair game AI</td><td>Characters, dungeons or loot generated by a sealed model and a public seed, so players can prove the game isn't rigged.</td><td><span class="track">09 Games</span></td></tr>
+            <tr><td>NFTs with provable origin</td><td>Mint an NFT whose text was written by the chain itself, with the model hash and block stored as proof.</td><td><span class="track">10 NFTs</span></td></tr>
+            <tr><td>Risk scoring in DeFi</td><td>A lending contract asks a sealed risk model before approving a loan, and anyone can audit why it said no.</td><td><span class="track">01 DeFi</span></td></tr>
+            <tr><td>Agent safety checks</td><td>A small classifier screens an AI agent's payment request before the contract releases funds.</td><td><span class="track">06 Security</span></td></tr>
+            <tr><td>Contests and disputes</td><td>A fixed, public model judges entries, with no hidden human or company in the loop.</td><td><span class="track">12 Social</span><span class="track">11 Memecoins</span></td></tr>
+            <tr><td>Permanent AI artifacts</td><td>A model published on chain can't be quietly retrained or deleted later.</td><td><span class="track">13 Open</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="gas-note">Many of these need a different small model, such as a classifier or a scorer, not a storyteller. Those are usually far cheaper than writing text: one prediction instead of 70 tokens.</p>
+    </div>
+  </section>
+
+  <section class="band" id="use" aria-labelledby="h-use">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="label">Live on testnet · mind-mwdofvuu.leston.testnet</span>
+        <h2 id="h-use">How to use it</h2>
+        <p>Five ways in, from a free question to calling it from your own contract. The commands use NEAR's command-line tool, <code class="inline">near-cli-rs</code>.</p>
+      </div>
+      <div class="howto">
+        <div class="slip">
+          <span class="where">Free · no account needed</span>
+          <h3>Ask it without a transaction</h3>
+          <p>A read-only call. Nothing is recorded and nobody pays. Up to 48 tokens.</p>
+          <div class="code"><pre>near contract call-function as-read-only mind-mwdofvuu.leston.testnet complete json-args &#x27;{&quot;prompt&quot;:&quot;The cat&quot;,&quot;max_tokens&quot;:32,&quot;seed&quot;:&quot;7&quot;}&#x27; network-config testnet now</pre><button class="copy" type="button">Copy</button></div>
+        </div>
+        <div class="slip">
+          <span class="where">Recorded forever · about 0.02 NEAR</span>
+          <h3>Ask it in a transaction</h3>
+          <p>Every validator runs the model and the answer is stored with your account as the caller. Leave out the seed to use the block's randomness.</p>
+          <div class="code"><pre>near contract call-function as-transaction mind-mwdofvuu.leston.testnet generate json-args &#x27;{&quot;prompt&quot;:&quot;Once upon a time&quot;,&quot;max_tokens&quot;:48}&#x27; prepaid-gas &#x27;300.0 Tgas&#x27; attached-deposit &#x27;0 NEAR&#x27; sign-as YOUR_ACCOUNT.testnet network-config testnet sign-with-legacy-keychain send</pre><button class="copy" type="button">Copy</button></div>
+        </div>
+        <div class="slip">
+          <span class="where">Shared · one story for everyone</span>
+          <h3>Write the next chapter</h3>
+          <p>Steer the Endless Story with a few words of your own, or none.</p>
+          <div class="code"><pre>near contract call-function as-transaction mind-mwdofvuu.leston.testnet extend_story json-args &#x27;{&quot;nudge&quot;:&quot;Then a dragon&quot;}&#x27; prepaid-gas &#x27;300.0 Tgas&#x27; attached-deposit &#x27;0 NEAR&#x27; sign-as YOUR_ACCOUNT.testnet network-config testnet sign-with-legacy-keychain send</pre><button class="copy" type="button">Copy</button></div>
+        </div>
+        <div class="slip">
+          <span class="where">Trust nothing · check it yourself</span>
+          <h3>Re-run any answer locally</h3>
+          <p>Take the prompt, temperature and seed from a transaction. You get the same words the validators wrote.</p>
+          <div class="code"><pre>cargo run -p chainmind-tools --release --bin chainmind -- run models/stories260k.cmnd &quot;Once upon a time&quot; --max 48 --temp 0.8 --seed 1</pre><button class="copy" type="button">Copy</button></div>
+        </div>
+        <div class="slip wide">
+          <span class="where">For developers · Rust</span>
+          <h3>Call it from your own contract</h3>
+          <p>Any NEAR contract can ask Chainmind for text and act on the answer in a callback. The whole transaction shares 300 Tgas, so a call from another contract fits about 50 tokens.</p>
+          <div class="code"><pre>#[ext_contract(ext_mind)]
+trait Chainmind {
+    fn generate(&amp;mut self, prompt: String, max_tokens: Option&lt;u32&gt;,
+                temperature: Option&lt;f32&gt;, seed: Option&lt;U64&gt;) -&gt; Generation;
+}
+
+ext_mind::ext(&quot;mind-mwdofvuu.leston.testnet&quot;.parse().unwrap())
+    .with_static_gas(Gas::from_tgas(220))
+    .generate(&quot;The knight opened the chest and found&quot;.into(), Some(40), None, None)
+    .then(Self::ext(env::current_account_id())
+        .with_static_gas(Gas::from_tgas(10))
+        .on_text())</pre><button class="copy" type="button">Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="story" aria-labelledby="h-story">
+    <div class="wrap story-grid">
+      <div class="story-copy">
+        <span class="label">The first app on Chainmind</span>
+        <h2 id="h-story" style="color:var(--text);font-size:var(--s3);line-height:1.12">The Endless Story</h2>
+        <p>One story, shared by everyone, written by the chain. Call <strong>extend_story</strong> with a few words of your own, or none, and the model writes the next part from where the story left off. Each chapter is saved on chain with its author, block and seed.</p>
+        <p>Nobody controls the plot. Not the players, not the authors of the contract.</p>
+        <span class="status">Live on testnet · chapter 1 is open</span>
+      </div>
+      <div class="chapters" aria-label="Chapters written on NEAR testnet">
+        <div class="chapter">
+          <span class="meta">Chapter 0 · by leston.testnet · <a href="https://testnet.nearblocks.io/txns/B7dEG1dDM4cd6tjnZczMtBD5dPU19LKow9Y4EAGVmTTr">transaction</a></span>
+          <span>Once upon a time, there was a little boy named Timmy. Timmy loved to run and play with his toys. One day, Timmy's mom made some journey and cle</span>
+        </div>
+        <div class="chapter">
+          <span class="meta">Chapter 1</span>
+          <span>Waiting for you. Call extend_story on mind-mwdofvuu.leston.testnet with a nudge of your own.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="gas" aria-labelledby="h-gas">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="label">Measured in nearcore's VM, protocol 88</span>
+        <h2 id="h-gas">What a story costs</h2>
+        <p>NEAR allows 300 Tgas per contract call. Loading the model costs about 16 Tgas, then each new token about 3.6 Tgas.</p>
+      </div>
+      <div class="gas-wrap">
+        <table class="gas">
+          <thead><tr><th>Tokens asked</th><th>Tokens written</th><th>Gas used</th><th>What came out</th></tr></thead>
+          <tbody>
+            <tr><td class="num">1</td><td class="num">1</td><td class="num">19.9 Tgas<span class="meter"><i style="width:6.6%"></i></span></td><td class="say">"Once upon a time,"</td></tr>
+            <tr><td class="num">8</td><td class="num">8</td><td class="num">43.4 Tgas<span class="meter"><i style="width:14.5%"></i></span></td><td class="say">"…there was a little girl"</td></tr>
+            <tr><td class="num">32</td><td class="num">32</td><td class="num">130.1 Tgas<span class="meter"><i style="width:43.4%"></i></span></td><td class="say">"…named Lily. She loved to play outside in the sun. One day, Lily's"</td></tr>
+            <tr><td class="num">64</td><td class="num">64</td><td class="num">260.6 Tgas<span class="meter"><i style="width:86.9%"></i></span></td><td class="say">"…mom gave her a big puppy to the park. Lily made a wide sea, and she"</td></tr>
+            <tr class="limit"><td class="num">256</td><td class="num">69</td><td class="num">282.7 Tgas<span class="meter"><i style="width:94.2%"></i></span></td><td class="say">Stopped itself with gas to spare and returned what it had.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="gas-note">Longer stories continue in the next transaction, which is how the Endless Story works.</p>
+    </div>
+  </section>
+
+  <section id="scale" aria-labelledby="h-scale">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="label">Limits, plainly</span>
+        <h2 id="h-scale">How far it scales</h2>
+        <p>This will never run a chatbot like ChatGPT. It's for small models where trust matters more than size: scoring, classifying, deciding and generating game content. Many useful models are that small.</p>
+      </div>
+      <dl class="limits">
+        <div><dt class="label">Per call</dt><dd>300 Tgas<small>About 70 tokens from this 260,032-parameter model.</small></dd></div>
+        <div><dt class="label">Bigger models</dt><dd>Linear cost<small>Work per token grows with size. A model 10× bigger fits only a handful of tokens per call.</small></dd></div>
+        <div><dt class="label">Storage</dt><dd>1 MB ≈ 10 NEAR<small>Storage is staked at about 1 NEAR per 100 KB while the model lives on chain.</small></dd></div>
+        <div><dt class="label">Speed</dt><dd>Seconds<small>The answer comes back with the transaction, usually within a few seconds.</small></dd></div>
+      </dl>
+      <div class="roadmap">
+        <div class="stage">
+          <span class="when">Today · live</span>
+          <h3>Small models inside one call</h3>
+          <p>A 260K-parameter model, sealed on testnet, writing up to 70 tokens per transaction with the same output on every machine.</p>
+        </div>
+        <div class="stage">
+          <span class="when">Next · in design</span>
+          <h3>One model split across shards</h3>
+          <p>Put each layer in its own contract and chain the calls. NEAR is sharded, so those contracts can sit on different shards and share the work.</p>
+        </div>
+        <div class="stage">
+          <span class="when">Research</span>
+          <h3>Checking big models on chain</h3>
+          <p>Run a large model off chain and post its answer with a deposit. If someone disputes it, the contract recomputes just the one layer in question. That only works with an engine whose maths matches bit for bit, which is what Chainmind has.</p>
+        </div>
+      </div>
+      <p class="gas-note">For scale: SmolLM2-135M, one of the smallest models Ollama runs, is about 520 times our model. By our estimate it would lock around 1,350 NEAR of storage and need about ten chained calls per token. That is why big models are better checked on chain than run there.</p>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="h-spec">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="label">Read from the model file in this page</span>
+        <h2 id="h-spec">Spec sheet</h2>
+      </div>
+      <dl class="spec" id="spec">
+        <div><dt>Layers</dt><dd data-k="n_layers">5</dd></div>
+        <div><dt>Width</dt><dd data-k="dim">64</dd></div>
+        <div><dt>Attention heads</dt><dd data-k="heads">8 (4 key/value)</dd></div>
+        <div><dt>Feed-forward width</dt><dd data-k="hidden_dim">172</dd></div>
+        <div><dt>Vocabulary</dt><dd data-k="vocab">512 pieces</dd></div>
+        <div><dt>Context</dt><dd data-k="seq_len">512 tokens</dd></div>
+        <div><dt>Weights</dt><dd>int8, one scale per row</dd></div>
+        <div><dt>SHA-256</dt><dd class="small" id="spec-sha">663eb9fbc1a70d1a223927566d87410933138b20038da038170a2af13227cb48</dd></div>
+      </dl>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Chainmind is built for the NEAR Hackathon 2026. Model: stories260K by Andrej Karpathy (llama2.c, MIT licence), trained on the TinyStories dataset, quantized to int8 for the chain.</p>
+    <p class="label">Rust · NEAR · WebAssembly</p>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const TEMP = 0.8, MAX = 64, PER_TOKEN_TGAS = 3.62, LOAD_TGAS = 16.3;
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let x = null, runs = 0, busy = false;
+
+  const fmt = (n) => n.toLocaleString("en-US");
+  const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+
+  async function sha256(bytes) {
+    try { return hex(await crypto.subtle.digest("SHA-256", bytes)); } catch { return null; }
+  }
+
+  function fnv(ids) {
+    let h = 0x811c9dc5;
+    for (const id of ids) { h ^= id & 0xffff; h = Math.imul(h, 0x01000193) >>> 0; }
+    return h.toString(16).padStart(8, "0").toUpperCase();
+  }
+
+  function put(bytes) {
+    const p = x.alloc(bytes.length);
+    new Uint8Array(x.memory.buffer, p, bytes.length).set(bytes);
+    return p;
+  }
+
+  function run(prompt, seed, max) {
+    const pb = new TextEncoder().encode(prompt);
+    const t0 = performance.now();
+    const out = x.generate(put(pb), pb.length, max, TEMP, seed >>> 0, 0);
+    const ms = performance.now() - t0;
+    const dv = new DataView(x.memory.buffer);
+    const n = dv.getUint32(out, true), promptTokens = dv.getUint32(out + 4, true), stop = dv.getUint32(out + 8, true);
+    const tokens = [];
+    let o = out + 12;
+    const dec = new TextDecoder();
+    for (let i = 0; i < n; i++) {
+      const id = dv.getUint32(o, true), len = dv.getUint32(o + 4, true);
+      tokens.push({ id, bytes: new Uint8Array(x.memory.buffer.slice(o + 8, o + 8 + len)) });
+      o += 8 + len;
+    }
+    return { tokens, promptTokens, stop, ms, dec };
+  }
+
+  function barcode(ids) {
+    const svg = $("r-bar");
+    let xpos = 0, rects = "";
+    const units = ids.map((id) => [1 + (id % 3), 1 + ((id >> 2) % 3)]);
+    const total = units.reduce((s, [w, g]) => s + w + g, 0) || 1;
+    const k = 300 / total;
+    for (const [w, g] of units) {
+      rects += `<rect x="${(xpos * k).toFixed(2)}" y="0" width="${(w * k).toFixed(2)}" height="44" fill="var(--ink)"/>`;
+      xpos += w + g;
+    }
+    svg.innerHTML = rects;
+  }
+
+  function seedValue() {
+    const v = parseInt($("seed").value, 10);
+    return Number.isFinite(v) && v >= 0 ? v : 1;
+  }
+
+  async function print(animate) {
+    if (!x || busy) return;
+    busy = true;
+    const prompt = $("prompt").value.trim() || "Once upon a time";
+    const seed = seedValue();
+    $("seed").value = String(seed);
+    $("print").disabled = true;
+    $("led").classList.add("on");
+
+    const r = run(prompt, seed, MAX);
+    runs += 1;
+    $("r-run").textContent = "RUN " + String(runs).padStart(4, "0");
+    $("r-seed").textContent = String(seed);
+    $("r-tokens").textContent = `${r.promptTokens} prompt + ${r.tokens.length} new`;
+    const gas = LOAD_TGAS + PER_TOKEN_TGAS * (r.tokens.length + r.promptTokens);
+    $("r-gas").textContent = `≈ ${Math.min(gas, 300).toFixed(0)} Tgas of 300`;
+    $("r-time").textContent = `${r.ms.toFixed(0)} ms in your browser`;
+    const ids = r.tokens.map((t) => t.id);
+    $("r-hash").textContent = fnv(ids);
+    $("r-cmd").textContent = `chainmind run stories260k.cmnd ${JSON.stringify(prompt)} --max ${MAX} --temp ${TEMP} --seed ${seed}`;
+
+    const story = $("r-story");
+    story.textContent = "";
+    const p = document.createElement("span");
+    p.className = "p";
+    p.textContent = prompt;
+    story.append(p);
+
+    // Decode incrementally so multi-byte characters split across tokens stay whole.
+    const dec = new TextDecoder();
+    const pieces = r.tokens.map((t, i) => dec.decode(t.bytes, { stream: i < r.tokens.length - 1 }));
+
+    if (!animate || reduced) {
+      story.append(document.createTextNode(pieces.join("")));
+      barcode(ids);
+      done();
+      return;
+    }
+    const cur = document.createElement("span");
+    cur.className = "cursor";
+    story.append(cur);
+    let i = 0;
+    const tick = () => {
+      if (i < pieces.length) {
+        const s = document.createElement("span");
+        s.className = "t";
+        s.textContent = pieces[i++];
+        story.insertBefore(s, cur);
+        barcode(ids.slice(0, i));
+        setTimeout(tick, 42);
+      } else {
+        cur.remove();
+        done();
+      }
+    };
+    tick();
+  }
+
+  function done() {
+    $("led").classList.remove("on");
+    $("print").disabled = false;
+    busy = false;
+  }
+
+  function proof() {
+    const r = run("The cat", 7, 32);
+    const ids = r.tokens.map((t) => t.id);
+    const want = [269,261,272,314,310,382,276,337,299,322,265,262,379,426,410,459,363,328,432,366,263,389,282,323,322,265,282,295,433,353,265,262];
+    const same = ids.length === want.length && ids.every((v, i) => v === want[i]);
+    $("proof-browser").textContent = `"The cat" · seed 7 → [${ids.slice(0, 6).join(", ")}, …]`;
+    $("proof-browser-ok").textContent = same ? "identical, all 32, just now" : `differs at token ${ids.findIndex((v, i) => v !== want[i])}`;
+  }
+
+  function readSpec(blob) {
+    const dv = new DataView(blob);
+    const u = (i) => dv.getUint32(8 + i * 4, true);
+    const [dim, hidden, layers, heads, kv, vocab, seq] = [0, 1, 2, 3, 4, 5, 6].map(u);
+    const kvDim = (dim * kv) / heads;
+    const params = vocab * dim + layers * (2 * dim + 2 * dim * dim + 2 * dim * kvDim + 3 * dim * hidden) + dim;
+    const set = (k, v) => document.querySelectorAll(`[data-k="${k}"]`).forEach((el) => (el.textContent = v));
+    set("params", fmt(params));
+    set("bytes", `${Math.round(blob.byteLength / 1000)} KB`);
+    set("n_layers", String(layers));
+    set("dim", String(dim));
+    set("heads", `${heads} (${kv} key/value)`);
+    set("hidden_dim", String(hidden));
+    set("vocab", `${vocab} pieces`);
+    set("seq_len", `${seq} tokens`);
+  }
+
+  async function boot() {
+    try {
+      const [w, m] = await Promise.all([
+        fetch("engine.wasm").then((r) => { if (!r.ok) throw new Error("engine"); return r.arrayBuffer(); }),
+        fetch("stories260k.b64.txt").then((r) => { if (!r.ok) throw new Error("model"); return r.text(); })
+          .then((t) => { const s = atob(t.replace(/\s+/g, "")); const b = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) b[i] = s.charCodeAt(i); return b.buffer; }),
+      ]);
+      const { instance } = await WebAssembly.instantiate(w, {});
+      x = instance.exports;
+      const model = new Uint8Array(m);
+      const ptr = x.alloc(model.length);
+      new Uint8Array(x.memory.buffer, ptr, model.length).set(model);
+      if (!x.load(ptr, model.length)) throw new Error("model did not parse");
+      readSpec(m);
+      const sha = await sha256(m);
+      if (sha) {
+        $("r-sha").textContent = `${sha.slice(0, 8)}…${sha.slice(-8)}`;
+        $("spec-sha").textContent = sha;
+      }
+      print(false);
+      proof();
+    } catch (e) {
+      $("r-time").textContent = "model not loaded";
+      $("proof-browser").textContent = "Could not load the model files next to this page.";
+      $("proof-browser-ok").textContent = "open the page from its web address to run it";
+      $("print").disabled = true;
+    }
+  }
+
+  $("form").addEventListener("submit", (e) => { e.preventDefault(); print(true); });
+  $("shuffle").addEventListener("click", () => {
+    $("seed").value = String(Math.floor(Math.random() * 1e6));
+    print(true);
+  });
+  document.querySelectorAll(".copy").forEach((b) => {
+    b.addEventListener("click", () => {
+      const pre = b.parentElement.querySelector("pre");
+      const select = () => {
+        const r = document.createRange();
+        r.selectNodeContents(pre);
+        const sel = getSelection();
+        sel.removeAllRanges();
+        sel.addRange(r);
+        b.textContent = "Selected";
+      };
+      const ok = () => { b.textContent = "Copied"; setTimeout(() => (b.textContent = "Copy"), 1600); };
+      try { navigator.clipboard.writeText(pre.textContent).then(ok, select); } catch { select(); }
+    });
+  });
+
+  boot();
+})();
+</script>

@@ -1,0 +1,15 @@
+[package]
+name = "chainmind-vmbench"
+version = "0.1.0"
+edition = "2021"
+description = "Runs the Chainmind wasm inside nearcore's VM with mainnet gas parameters"
+license = "MIT"
+publish = false
+
+[dependencies]
+near-vm-runner = { version = "=0.38.1", features = ["prepare"] }
+near-parameters = "=0.38.1"
+near-primitives-core = "=0.38.1"
+sha2 = "0.10"
+base64 = "0.22"
+serde_json = "1"

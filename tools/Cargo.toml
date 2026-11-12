@@ -1,0 +1,11 @@
+[package]
+name = "chainmind-tools"
+version = "0.1.0"
+edition = "2021"
+description = "Convert llama2.c checkpoints to the onchain CMND format and re-run onchain generations locally"
+license = "MIT"
+publish = false
+
+[dependencies]
+chainmind-engine = { path = "../engine" }
+sha2 = "0.10"

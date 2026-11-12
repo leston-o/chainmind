@@ -1,0 +1,13 @@
+[package]
+name = "chainmind-web"
+version = "0.1.0"
+edition = "2021"
+description = "The Chainmind engine as a tiny browser wasm, bit-identical to the contract"
+license = "MIT"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+chainmind-engine = { path = "../engine" }
